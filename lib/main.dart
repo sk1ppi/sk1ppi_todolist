@@ -1,4 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:sk1ppi_todolist/screens/signin_screen.dart';
+import 'package:sk1ppi_todolist/screens/signup_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+// GoRouter configuration
+final _router = GoRouter(
+  redirect: (BuildContext context, GoRouterState state) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final token = prefs.get('token');
+
+    // If token is not null, redirect to home
+    if (token != null) {
+      return '/home';
+    } else {
+      // If token is null, redirect to signin
+      return '/';
+    }
+  },
+  routes: [
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const SigninScreen(),
+      routes: [
+        GoRoute(
+          path: 'signup',
+          builder: (context, state) => const SignupScreen(),
+        ),
+      ],
+    ),
+  ],
+);
 
 void main() {
   runApp(const MyApp());
@@ -10,28 +42,10 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a blue toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+    return MaterialApp.router(
+      title: 'Sk1ppi Todo List',
+      theme: ThemeData.dark(),
+      routerConfig: _router,
     );
   }
 }
